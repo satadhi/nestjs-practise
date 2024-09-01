@@ -1,0 +1,58 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.0.x", "linux-musl"]
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           Int          @id @default(autoincrement())
+  name         String       @unique
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  price        Float
+  sale         Boolean      @default(false)
+  availibility Availibility
+
+  tags   Tag[]
+  User   Owner? @relation(fields: [userId], references: [id])
+  userId Int?
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  content  String
+  products Product[]
+}
+
+model Owner {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  gender    Gender
+  products  Product[]
+  role      Role
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  CAT
+  DOG
+}
+
+enum Availibility {
+  IN_STORE
+  ONLINE
+  EMPTY
+}
+
+enum Role {
+  ADMIN
+  USER
+}
