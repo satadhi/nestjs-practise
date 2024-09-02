@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { Prisma } from '@prisma/client';
-import { JwtAuthGuard } from 'src/auth/guard/jwt-auth.guard';
+import { CustomAuthGuard } from 'src/auth/guard/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -15,7 +15,7 @@ export class ProductsController {
 
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(CustomAuthGuard)
   findAll() {
     return this.productsService.findAll();
   }
