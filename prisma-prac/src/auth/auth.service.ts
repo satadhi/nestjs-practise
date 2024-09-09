@@ -1,8 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import { Prisma } from '@prisma/client';
-import { Response } from 'express';
 import {
   CognitoIdentityProviderClient, SignUpCommand, InitiateAuthCommand, ConfirmSignUpCommand, GetUserCommand,
   GetUserCommandInput,
@@ -19,7 +16,6 @@ export class AuthService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
   ) {
 
     this.userPoolId = configService.get('userPoolId');
@@ -123,21 +119,6 @@ export class AuthService {
       throw new UnauthorizedException('Invalid refresh token');
     }
   }
-
-  async verifyToken(accessToken: string) {
-    const params: GetUserCommandInput = {
-      AccessToken: accessToken,
-    };
-
-    try {
-      const command = new GetUserCommand(params);
-      return await this.cognitoClient.send(command);
-    } catch (error) {
-      console.error('Error verifying token:', error.message);
-      throw new UnauthorizedException('Invalid token');
-    }
-  }
-
 
   async getUserInfo(accessToken: string) {
     const params: GetUserCommandInput = {

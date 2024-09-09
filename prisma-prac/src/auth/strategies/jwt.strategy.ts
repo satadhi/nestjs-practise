@@ -3,7 +3,9 @@ import { PassportStrategy } from "@nestjs/passport";
 // import { ExtractJwt, Strategy } from 'passport-jwt'
 // import { ConfigService } from '@nestjs/config';
 import { AuthService } from "../auth.service";
-import { Strategy } from 'passport-strategy';
+// import { Strategy } from 'passport-strategy'; // use this for custom strategy
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
 
 
 
@@ -52,36 +54,65 @@ import { Strategy } from 'passport-strategy';
 // }
 
 
+// @Injectable()
+// export class CustomStrategy extends PassportStrategy(Strategy, 'custom') {
+//     name = "custom"
+//     constructor(private readonly authService: AuthService) {
+//         super();
+//         // this.name = 'custom'; // Set a name for your strategy
+//     }
+
+//     async authenticate(req: any) {
+//         console.log("authenticate is triggered ???")
+//         // Extract token from request (header, query, etc.)
+//         const token = req.headers.authorization?.split(' ')[1]; // Assumes Bearer token
+
+//         if (!token) {
+
+//             return this.fail('Token not provided', 404)
+//             // return new UnauthorizedException('Token not provided');
+//         }
+
+//         try {
+//             // Verify the token using the authService
+//             const user = await this.authService.verifyToken(token);
+
+//             // If successful, pass user to Passport
+//             return this.success(user);
+//         } catch (error) {
+
+//             return this.fail('Invalid token', 401)
+//             // If verification fails, fail authentication
+//             // return new UnauthorizedException('Invalid token');
+//         }
+//     }
+// }
+
+
+
+import * as jwksRsa from 'jwks-rsa';
+import { ConfigService } from "@nestjs/config";
+
 @Injectable()
-export class CustomStrategy extends PassportStrategy(Strategy, 'custom') {
-    name = "custom"
-    constructor(private readonly authService: AuthService) {
-        super();
-        // this.name = 'custom'; // Set a name for your strategy
+export class JwtStrategy extends PassportStrategy(Strategy) {
+    constructor(private readonly configService: ConfigService) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKeyProvider: jwksRsa.passportJwtSecret({
+                cache: true,
+                rateLimit: true,
+                jwksRequestsPerMinute: 5,
+                jwksUri: `https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_HAxFZAWcM/.well-known/jwks.json`,
+            }),
+            // audience: `5pla11viib0sun4ccvvgmc9p48`,
+            issuer: `https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_HAxFZAWcM`,
+            algorithms: ['RS256'],
+
+        });
     }
 
-    async authenticate(req: any) {
-        console.log("authenticate is triggered ???")
-        // Extract token from request (header, query, etc.)
-        const token = req.headers.authorization?.split(' ')[1]; // Assumes Bearer token
-
-        if (!token) {
-
-            return this.fail('Token not provided', 404)
-            // return new UnauthorizedException('Token not provided');
-        }
-
-        try {
-            // Verify the token using the authService
-            const user = await this.authService.verifyToken(token);
-
-            // If successful, pass user to Passport
-            return this.success(user);
-        } catch (error) {
-
-            return this.fail('Invalid token', 401)
-            // If verification fails, fail authentication
-            // return new UnauthorizedException('Invalid token');
-        }
+    async validate(payload: any) {
+        console.log("I am triggering the validate options", payload);
+        return { userId: payload.sub, email: payload.email };
     }
 }
