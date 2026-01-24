@@ -8,3 +8,6 @@ nest g library common
 
 
 update the nest-cli.json accordinly
+
+
+npm install @nestjs/microservices

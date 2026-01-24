@@ -12,7 +12,6 @@ services:
       - mongodb-secondary
       - mongodb-arbiter
       - billing
-      - auth
       - rabbitmq
     volumes:
       - .:/usr/src/app
@@ -32,12 +31,15 @@ services:
       - mongodb-secondary
       - mongodb-arbiter
       - rabbitmq
-      - auth
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - '5672:5672'
   mongodb-primary:
-    image: docker.io/bitnami/mongodb:5.0
+    image: bitnami/mongodb:latest
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-primary
       - MONGODB_REPLICA_SET_MODE=primary
@@ -49,7 +51,7 @@ services:
       - '27017:27017'
 
   mongodb-secondary:
-    image: docker.io/bitnami/mongodb:5.0
+    image: bitnami/mongodb:latest
     depends_on:
       - mongodb-primary
     environment:
@@ -60,7 +62,7 @@ services:
       - MONGODB_REPLICA_SET_KEY=replicasetkey123
 
   mongodb-arbiter:
-    image: docker.io/bitnami/mongodb:5.0
+    image: bitnami/mongodb:latest
     depends_on:
       - mongodb-primary
     environment:

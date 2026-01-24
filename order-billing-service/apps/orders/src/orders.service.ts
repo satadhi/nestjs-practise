@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class OrdersService {
-  getHello(): string {
-    return 'Hello World!';
+  async getOrders() {
+    return this.ordersRepository.find({});
   }
 }
