@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from './database/database.service';
+import { DatabaseService } from '../database/database.service';
 import { Post, Prisma } from '@prisma/client';
 
 @Injectable()
-export class AppRepository {
+export class PostRepository {
   constructor(private readonly db: DatabaseService) {}
 
   async addPost(data: Prisma.PostCreateInput): Promise<Post> {
