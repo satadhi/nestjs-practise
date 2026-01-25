@@ -2,9 +2,13 @@ import { IsString, IsInt, MaxLength } from 'class-validator';
 
 export class addPostRequest {
   @IsInt()
-  id: string;
+  id: number;
 
   @IsString()
   @MaxLength(1025)
-  post: string;
+  content: string;
+
+  @IsString()
+  @MaxLength(15)
+  title: string;
 }
